@@ -1,7 +1,12 @@
-from flask import Flask, jsonify
-from langchain_helper import getQuestions
+from flask import Flask, jsonify, request
+from langchain_helper import getQuestions, askMe
+from flask_cors import CORS
+from dotenv import load_dotenv
+load_dotenv()
+import os
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": [os.getenv("FRONTEND_DEV_API"), os.getenv("FRONTEND_PROD_API")]}})
 
 @app.route('/',methods=['GET'])
 def index():
@@ -9,10 +14,14 @@ def index():
 
 @app.route('/questions',methods=['GET'])
 def get_questions():
-    output = getQuestions()
-    print(output)
-    questions = [q.strip().split('. ', 1)[1] for q in output.strip().split('\n') if '. ' in q]
-    return {"questions": questions}
+    questions = getQuestions()
+    return jsonify(questions)
+
+@app.route('/ask',methods=['POST'])
+def ask():
+    question = request.json['question']
+    reply = askMe(question)
+    return jsonify(reply)
 
 if __name__ == "__main__":
-    app.run(port=8000, debug=True)
+    app.run(debug=True)

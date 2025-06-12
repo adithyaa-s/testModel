@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 load_dotenv()
 # from pytube import YouTube
 from langchain_core.messages import HumanMessage
-from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
 # import faiss from "faiss-cpu"
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash")
 
@@ -19,7 +19,12 @@ def getQuestions():
     result = llm.invoke(messages)
     return result.content
 
-
+def askMe(userQuestion: str):
+    prompt_template = PromptTemplate.from_template("Please reply to the user input : {question}")
+    formatted_prompt = prompt_template.format(question=userQuestion)
+    result = llm.invoke(formatted_prompt)
+    return result.content
+    
 
 # from langchain_community.vectorstores import FAISS
 # from langchain_openai import OpenAIEmbeddings
